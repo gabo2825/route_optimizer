@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curva de Hilbert vs Orden X | Simulador Logístico</title>
+    <!-- Fuentes Premium de Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            
+            --hilbert-color: #a855f7;
+            --hilbert-glow: rgba(168, 85, 247, 0.4);
+            --trad-color: #06b6d4;
+            --trad-glow: rgba(6, 182, 212, 0.4);
+            
+            --success-color: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.25);
+            --depot-color: #10b981;
+            
+            --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+        }
+
+        header {
+            width: 100%;
+            max-width: 1200px;
+            padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 2.5rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 30%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        main {
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 1.5rem 3rem 1.5rem;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Glassmorphic Panel Design */
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Control Panel */
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: fit-content;
+        }
+
+        .panel-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #a855f7;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: 0 0 8px #a855f7;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .slider-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--hilbert-color);
+            min-width: 24px;
+            text-align: right;
+        }
+
+        .btn-generate {
+            background: var(--accent-gradient);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+        }
+
+        .btn-generate:active {
+            transform: translateY(0);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .checkbox-container input {
+            display: none;
+        }
+
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            display: inline-block;
+            position: relative;
+            transition: var(--transition-smooth);
+        }
+
+        .checkbox-container input:checked + .custom-checkbox {
+            background: #a855f7;
+            border-color: #a855f7;
+        }
+
+        .checkbox-container input:checked + .custom-checkbox::after {
+            content: "✓";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* Visualization Area */
+        .simulation-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Metric Badges Dashboard */
+        .metrics-dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .metric-card.hilbert::before { background: var(--hilbert-color); }
+        .metric-card.traditional::before { background: var(--trad-color); }
+        .metric-card.saving::before { background: var(--success-color); }
+
+        .metric-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .hilbert .metric-value { color: var(--hilbert-color); }
+        .traditional .metric-value { color: var(--trad-color); }
+        
+        .saving-badge {
+            color: var(--success-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            font-weight: 700;
+        }
+
+        /* Graphs Side-by-Side */
+        .graphs-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .graph-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .graph-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 0.5rem;
+        }
+
+        .graph-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dot-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot-hilbert { background: var(--hilbert-color); box-shadow: 0 0 8px var(--hilbert-color); }
+        .dot-traditional { background: var(--trad-color); box-shadow: 0 0 8px var(--trad-color); }
+
+        .canvas-container {
+            position: relative;
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+            padding: 10px;
+        }
+
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        /* Brief description for university presentation */
+        .exposicion-helper {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .exposicion-helper strong {
+            color: var(--text-primary);
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.1);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border-left-color: #fff;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+            .graphs-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Optimización de Rutas Logísticas</h1>
+        <div class="subtitle">Análisis Fractal: Curva de Hilbert vs. Ordenamiento Tradicional en Cuadrícula</div>
+    </header>
+
+    <main>
+        <!-- Panel de Control Izquierdo -->
+        <section class="control-panel glass-panel">
+            <h2 class="panel-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>
+                Parámetros
+            </h2>
+            
+            <div class="control-group">
+                <label for="client-slider">Número de Clientes</label>
+                <div class="slider-container">
+                    <input type="range" id="client-slider" min="3" max="15" value="8">
+                    <span class="slider-value" id="slider-val">8</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="show-curve-check" checked>
+                    <span class="custom-checkbox"></span>
+                    Mostrar Curva de Hilbert
+                </label>
+            </div>
+
+            <button class="btn-generate" id="btn-run">
+                <span class="spinner" id="btn-spinner"></span>
+                <span id="btn-text">Generar Rutas</span>
+            </button>
+
+            <div class="exposicion-helper">
+                <strong>Consejo Académico:</strong><br>
+                Prueba con <strong>N=10 o más clientes</strong>. Notarás que el ordenamiento tradicional tiende a cruzar repetidamente la cuadrícula de izquierda a derecha (ineficiencia de barrido), mientras que la Curva de Hilbert agrupa las paradas en vecindades locales disminuyendo los trayectos redundantes.
+            </div>
+        </section>
+
+        <!-- Área de Visualización y Gráficos -->
+        <section class="simulation-container">
+            <!-- Indicadores de Distancia -->
+            <div class="metrics-dashboard">
+                <div class="metric-card hilbert">
+                    <span class="metric-label">Distancia Hilbert (Manhattan)</span>
+                    <span class="metric-value" id="dist-hilbert">--</span>
+                </div>
+                <div class="metric-card traditional">
+                    <span class="metric-label">Distancia Tradicional (Manhattan)</span>
+                    <span class="metric-value" id="dist-traditional">--</span>
+                </div>
+                <div class="metric-card saving">
+                    <span class="metric-label">Eficiencia Ganada</span>
+                    <span class="metric-value saving-badge" id="dist-saving">--</span>
+                </div>
+            </div>
+
+            <!-- Gráficos de Cuadrícula -->
+            <div class="graphs-wrapper">
+                <!-- Panel Hilbert -->
+                <div class="graph-panel glass-panel">
+                    <div class="graph-header">
+                        <span class="graph-title">
+                            <span class="dot-indicator dot-hilbert"></span>
+                            Ruta Hilbert (Orden Espacial)
+                        </span>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="canvas-hilbert" width="360" height="360"></canvas>
+                    </div>
+                </div>
+
+                <!-- Panel Tradicional -->
+                <div class="graph-panel glass-panel">
+                    <div class="graph-header">
+                        <span class="graph-title">
+                            <span class="dot-indicator dot-traditional"></span>
+                            Ruta Tradicional (Orden X)
+                        </span>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="canvas-traditional" width="360" height="360"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Configuración y Variables de Estado
+        const slider = document.getElementById('client-slider');
+        const sliderVal = document.getElementById('slider-val');
+        const btnRun = document.getElementById('btn-run');
+        const btnSpinner = document.getElementById('btn-spinner');
+        const btnText = document.getElementById('btn-text');
+        const showCurveCheck = document.getElementById('show-curve-check');
+
+        const canvasH = document.getElementById('canvas-hilbert');
+        const canvasT = document.getElementById('canvas-traditional');
+        const ctxH = canvasH.getContext('2d');
+        const ctxT = canvasT.getContext('2d');
+
+        let lastData = null; // Almacena la última respuesta de la API
+
+        // Sincronizar valor de slider en pantalla
+        slider.addEventListener('input', () => {
+            sliderVal.textContent = slider.value;
+        });
+
+        // Eventos de control
+        btnRun.addEventListener('click', generateSimulation);
+        showCurveCheck.addEventListener('change', () => {
+            if (lastData) drawSimulation(lastData);
+        });
+
+        // Obtener ruta estática de la curva de Hilbert de orden 3
+        // Generada dinámicamente para servir como fondo de guía
+        function getHilbertCurvePath() {
+            // Un arreglo de 64 puntos en cuadrícula 8x8 que forma la curva de Hilbert
+            // Mapeado usando el mismo algoritmo xy2hilbert
+            const path = [];
+            for (let d = 0; d < 64; d++) {
+                // Cálculo inverso del índice 1D d a 2D (x,y)
+                path.push(d2xy(3, d));
+            }
+            return path;
+        }
+
+        // Traducción bit a bit de índice a coordenadas (inverso de xy2hilbert) para renderizar el fondo
+        function d2xy(n, d) {
+            let rx, ry, s, t = d;
+            let x = 0, y = 0;
+            for (s = 1; s < (1 << n); s <<= 1) {
+                rx = 1 & (t / 2);
+                ry = 1 & (t ^ rx);
+                
+                // Rotación
+                if (ry === 0) {
+                    if (rx === 1) {
+                        x = s - 1 - x;
+                        y = s - 1 - y;
+                    }
+                    let temp = x;
+                    x = y;
+                    y = temp;
+                }
+                
+                x += s * rx;
+                y += s * ry;
+                t = Math.floor(t / 4);
+            }
+            return { x, y };
+        }
+
+        // Llamar a la API del backend
+        async function generateSimulation() {
+            setLoading(true);
+            const n = slider.value;
+            try {
+                const response = await fetch(`/api/generate_routes?n=${n}`);
+                if (!response.ok) throw new Error('Error en el servidor');
+                const data = await response.json();
+                lastData = data;
+                
+                // Actualizar Métricas en el Dashboard
+                document.getElementById('dist-hilbert').textContent = `${data.hilbert_distance} u`;
+                document.getElementById('dist-traditional').textContent = `${data.traditional_distance} u`;
+                
+                const saving = data.efficiency_gain_pct;
+                const savingEl = document.getElementById('dist-saving');
+                if (saving > 0) {
+                    savingEl.innerHTML = `▲ ${saving}% <span style="font-size:0.8rem; font-weight:normal; margin-left:2px; color:var(--text-secondary)">menor</span>`;
+                    savingEl.style.color = 'var(--success-color)';
+                } else if (saving < 0) {
+                    savingEl.innerHTML = `▼ ${Math.abs(saving)}% <span style="font-size:0.8rem; font-weight:normal; margin-left:2px; color:var(--text-secondary)">mayor</span>`;
+                    savingEl.style.color = '#ef4444';
+                } else {
+                    savingEl.textContent = 'Igual';
+                    savingEl.style.color = 'var(--text-primary)';
+                }
+
+                // Renderizar los gráficos Canvas
+                drawSimulation(data);
+            } catch (err) {
+                console.error(err);
+                alert('No se pudo comunicar con el servidor Flask.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                btnSpinner.style.display = 'block';
+                btnText.textContent = 'Calculando...';
+                btnRun.disabled = true;
+            } else {
+                btnSpinner.style.display = 'none';
+                btnText.textContent = 'Generar Rutas';
+                btnRun.disabled = false;
+            }
+        }
+
+        // Trazado principal
+        function drawSimulation(data) {
+            const canvasSize = 360;
+            const gridCells = 8;
+            const cellSize = canvasSize / gridCells;
+
+            // Limpiar lienzos
+            ctxH.clearRect(0, 0, canvasSize, canvasSize);
+            ctxT.clearRect(0, 0, canvasSize, canvasSize);
+
+            // Dibujar fondos y cuadrículas
+            drawGrid(ctxH, canvasSize, cellSize, gridCells);
+            drawGrid(ctxT, canvasSize, cellSize, gridCells);
+
+            // Dibujar la curva fractal de Hilbert de fondo si está activado
+            if (showCurveCheck.checked) {
+                drawHilbertBackground(ctxH, cellSize);
+            }
+
+            // Dibujar las rutas de entrega
+            drawRoutePath(ctxH, data.hilbert_route, cellSize, 'var(--hilbert-color)');
+            drawRoutePath(ctxT, data.traditional_route, cellSize, 'var(--trad-color)');
+
+            // Dibujar el Depósito (0,0) destacado
+            drawDepot(ctxH, cellSize);
+            drawDepot(ctxT, cellSize);
+
+            // Dibujar los Clientes
+            // Los dibujamos con su respectivo orden de visita
+            drawClients(ctxH, data.hilbert_route, cellSize, 'var(--hilbert-color)');
+            drawClients(ctxT, data.traditional_route, cellSize, 'var(--trad-color)');
+        }
+
+        // Dibujar Cuadrícula de Referencia
+        function drawGrid(ctx, size, cellSize, cells) {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            
+            // Líneas de la cuadrícula
+            for (let i = 0; i <= cells; i++) {
+                // Verticales
+                ctx.beginPath();
+                ctx.moveTo(i * cellSize, 0);
+                ctx.lineTo(i * cellSize, size);
+                ctx.stroke();
+
+                // Horizontales
+                ctx.beginPath();
+                ctx.moveTo(0, i * cellSize);
+                ctx.lineTo(size, i * cellSize);
+                ctx.stroke();
+            }
+
+            // Ejes y Etiquetas en el fondo
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.font = '9px Inter';
+            for (let i = 0; i < cells; i++) {
+                ctx.fillText(i, i * cellSize + 5, 12);
+                ctx.fillText(i, 5, i * cellSize + cellSize - 5);
+            }
+        }
+
+        // Dibujar la curva de Hilbert de fondo
+        function drawHilbertBackground(ctx, cellSize) {
+            const path = getHilbertCurvePath();
+            ctx.strokeStyle = 'rgba(168, 85, 247, 0.09)';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.setLineDash([5, 5]);
+
+            ctx.beginPath();
+            path.forEach((pt, index) => {
+                const cx = pt.x * cellSize + cellSize / 2;
+                const cy = pt.y * cellSize + cellSize / 2;
+                if (index === 0) ctx.moveTo(cx, cy);
+                else ctx.lineTo(cx, cy);
+            });
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset
+        }
+
+        // Dibujar Trazado de Rutas (Líneas Direccionales)
+        function drawRoutePath(ctx, route, cellSize, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = color;
+
+            ctx.beginPath();
+            route.forEach((pt, index) => {
+                const cx = pt.x * cellSize + cellSize / 2;
+                const cy = pt.y * cellSize + cellSize / 2;
+                if (index === 0) ctx.moveTo(cx, cy);
+                else ctx.lineTo(cx, cy);
+            });
+            ctx.stroke();
+            ctx.shadowBlur = 0; // Reset
+            
+            // Dibujar flechas de sentido en el centro de los segmentos
+            ctx.fillStyle = color;
+            for (let i = 0; i < route.length - 1; i++) {
+                const p1 = route[i];
+                const p2 = route[i+1];
+                
+                const cx1 = p1.x * cellSize + cellSize/2;
+                const cy1 = p1.y * cellSize + cellSize/2;
+                const cx2 = p2.x * cellSize + cellSize/2;
+                const cy2 = p2.y * cellSize + cellSize/2;
+                
+                drawArrowhead(ctx, cx1, cy1, cx2, cy2, 6);
+            }
+        }
+
+        function drawArrowhead(ctx, fromx, fromy, tox, toy, radius) {
+            const angle = Math.atan2(toy - fromy, tox - fromx);
+            // Punto medio del segmento
+            const midX = (fromx + tox) / 2;
+            const midY = (fromy + toy) / 2;
+            
+            ctx.beginPath();
+            ctx.moveTo(midX, midY);
+            ctx.lineTo(midX - radius * Math.cos(angle - Math.PI/6), midY - radius * Math.sin(angle - Math.PI/6));
+            ctx.lineTo(midX - radius * Math.cos(angle + Math.PI/6), midY - radius * Math.sin(angle + Math.PI/6));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Dibujar el Depósito en (0, 0)
+        function drawDepot(ctx, cellSize) {
+            const cx = 0 * cellSize + cellSize / 2;
+            const cy = 0 * cellSize + cellSize / 2;
+
+            // Halo del Depósito
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Depósito
+            ctx.fillStyle = 'var(--depot-color)';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 9, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Texto "DEP"
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 8px Outfit';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('DEP', cx, cy);
+        }
+
+        // Dibujar Clientes con su número de orden
+        function drawClients(ctx, route, cellSize, color) {
+            // Excluimos el primer y último elemento de la ruta (que es el depósito)
+            for (let i = 1; i < route.length - 1; i++) {
+                const pt = route[i];
+                const cx = pt.x * cellSize + cellSize / 2;
+                const cy = pt.y * cellSize + cellSize / 2;
+
+                // Círculo base blanco
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(cx, cy, 11, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Círculo interior de color de la ruta
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(cx, cy, 9, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Orden de Visita
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 10px Outfit';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(i, cx, cy);
+            }
+        }
+
+        // Simulación inicial al cargar la página
+        window.addEventListener('DOMContentLoaded', () => {
+            generateSimulation();
+        });
+    </script>
+</body>
+</html>
