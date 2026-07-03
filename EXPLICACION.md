@@ -15,12 +15,12 @@ La curva de Hilbert es una **curva de llenado de espacio (space-filling curve)**
 *   **La analogía del hilo:** Imagina un único hilo muy largo y doblado con un patrón específico en forma de "U" que recorre todo el plano. La función `xy2hilbert(n, x, y)` toma una coordenada $(x, y)$ del mapa y te dice a cuántos centímetros del inicio del hilo se encuentra ese punto (su distancia/índice 1D).
 *   **Preservación de cercanía:** Si dos clientes están geográficamente cerca en el plano 2D, sus índices en el hilo (1D) también serán muy cercanos. Al ordenar a los clientes según el "hilo" de Hilbert, el camión realiza visitas agrupadas por vecindarios locales, eliminando saltos innecesarios a través de la ciudad.
 
-### El Algoritmo Bit a Bit (en el código)
-La función `xy2hilbert` del código calcula este índice operando a nivel de bits:
+### El Algoritmo Bit a Bit (en el código JavaScript)
+La función `xy2hilbert` de la aplicación calcula este índice operando a nivel de bits:
 1. Divide recursivamente la cuadrícula en 4 cuadrantes.
 2. Analiza los bits más significativos de $x$ y de $y$ para determinar en cuál de los 4 cuadrantes se encuentra el punto en ese nivel.
 3. Suma la distancia acumulada según el cuadrante (`d += s * s * ...`).
-4. **La magia fractal:** Rota e intercambia los ejes de coordenadas (`x, y = y, x` y reflexiones) cuando se encuentra en los cuadrantes inferiores. Esta rotación asegura que el final de la curva en un cuadrante conecte directamente con el inicio de la curva en el siguiente cuadrante sin dar saltos bruscos en el espacio.
+4. **La magia fractal:** Rota e intercambia los ejes de coordenadas (`curX, curY` e intercambios) cuando se encuentra en los cuadrantes inferiores. Esta rotación asegura que el final de la curva en un cuadrante conecte directamente con el inicio de la curva en el siguiente cuadrante sin dar saltos bruscos en el espacio.
 
 ---
 
@@ -30,7 +30,7 @@ La función `xy2hilbert` del código calcula este índice operando a nivel de bi
 La distancia Manhattan entre dos puntos $P_1(x_1, y_1)$ y $P_2(x_2, y_2)$ está dada por la suma de las diferencias absolutas de sus coordenadas:
 $$D_{\text{Manhattan}} = |x_1 - x_2| + |y_1 - y_2|$$
 
-En la función `calculate_manhattan_distance`, acumulamos esta distancia sumando los segmentos de toda la ruta cerrada (viaje redondo desde el depósito $(0,0)$, pasando por los clientes y regresando al depósito).
+En la función `calculateManhattanDistance`, acumulamos esta distancia sumando los segmentos de toda la ruta cerrada (viaje redondo desde el depósito $(0,0)$, pasando por los clientes y regresando al depósito).
 
 ### ¿Por qué elegimos esta métrica en lugar de la Distancia Euclidiana?
 1.  **La cuadrícula urbana:** En la mayoría de las ciudades, las calles están organizadas en una cuadrícula (calles y avenidas ortogonales). Un vehículo no puede atravesar edificios en línea recta (distancia euclidiana o "en línea de aire"). Debe viajar de forma horizontal y vertical a lo largo de las calles.
@@ -40,10 +40,10 @@ En la función `calculate_manhattan_distance`, acumulamos esta distancia sumando
 
 ## 3. Tres Conclusiones Visuales Clave para mostrar al Profesor
 
-Durante tu defensa frente al software abierto en vivo, pídele al profesor que preste atención a los siguientes fenómenos geométricos en los gráficos:
+Durante tu defensa frente a la aplicación abierta, pídele al profesor que preste atención a los siguientes fenómenos geométricos en los gráficos:
 
 ### Conclusión 1: El "Efecto Vaivén" o Cruzado en el Método Tradicional (Ineficiencia)
-*   **Qué observar:** Mira el Canvas derecho (Ruta Tradicional). Al ordenar estrictamente por la coordenada $X$, si dos puntos tienen coordenadas $X$ similares pero $Y$ opuestas (uno en el extremo norte y otro en el extremo sur), el trazado de la ruta tradicional generará una línea vertical larga y roja que cruza todo el mapa de arriba a abajo, para luego volver a subir.
+*   **Qué observar:** Mira el Canvas derecho (Ruta Tradicional). Al ordenar estrictamente por la coordenada $X$, si dos puntos tienen coordenadas $X$ similares pero $Y$ opuestas (uno en el extremo norte y otro en el extremo sur), el trazado de la ruta tradicional generará una línea vertical larga y azul que cruza todo el mapa de arriba a abajo, para luego volver a subir.
 *   **El argumento matemático:** El ordenamiento por una dimensión única ($X$) ignora por completo la continuidad de la otra dimensión ($Y$). Esto produce rutas redundantes y con cruces caóticos que aumentan el costo logístico de forma drástica.
 
 ### Conclusión 2: Agrupación en Micro-Vecindades (Coherencia Fractal)
@@ -56,13 +56,13 @@ Durante tu defensa frente al software abierto en vivo, pídele al profesor que p
 
 ---
 
-## 4. Justificación Arquitectónica: ¿Por qué usar Python (Flask/Pip) y no hacer todo en JavaScript?
+## 4. Justificación Técnica: ¿Por qué hacer la simulación del lado del cliente (Client-Side) en un solo archivo HTML/JS?
 
-Si el jurado evaluador te pregunta por qué estructuraste el proyecto usando un backend dedicado en Python y no únicamente una página HTML estática con JavaScript, estas son las tres justificaciones técnicas y profesionales para tu defensa:
+Si el jurado evaluador te pregunta por qué decidiste implementar la simulación en un archivo estático unificado en lugar de usar un backend tradicional (como Python/Flask), aquí tienes las tres justificaciones técnicas sólidas para tu defensa:
 
-1. **Separación de Responsabilidades (Arquitectura Cliente-Servidor):**
-   *   En la ingeniería de software profesional, la lógica matemática central de optimización (el "modelo") se separa de la visualización del usuario (la "vista"). El backend en Python procesa los datos y ejecuta el ruteo matemático puro, mientras que el navegador solo se preocupa de pintar la interfaz en pantalla. Esto hace que el código sea limpio, modular y estructurado según las mejores prácticas académicas.
-2. **Escalabilidad y Ecosistema Científico de Python:**
-   *   Python es el lenguaje estándar de la industria para la **Investigación de Operaciones**, ciencia de datos y optimización logística. Al construir el núcleo del algoritmo en Python, el prototipo queda preparado para conectarse fácilmente con librerías de optimización avanzada (como `SciPy`, `Google OR-Tools`, `NetworkX` o `PuLP`) o para consumir bases de datos geográficas reales. Si se hiciera 100% en JavaScript, expandir el proyecto a problemas reales de logística sería sumamente limitado.
-3. **Seguridad y Propiedad Intelectual de los Algoritmos:**
-   *   En un entorno comercial real, los algoritmos de optimización de rutas son propiedad intelectual valiosa y confidencial. Si la lógica corriera únicamente en JavaScript (en el navegador), cualquier usuario podría descargar y copiar el algoritmo completo de ruteo. Ejecutarlo en el backend mediante un servidor Flask garantiza que la propiedad intelectual del algoritmo de Hilbert permanezca protegida y no expuesta al cliente.
+1.  **Portabilidad Absoluta y Cero Dependencias:**
+    *   En una exposición académica en vivo, los entornos técnicos son impredecibles (falta de internet, puertos de red bloqueados, políticas de seguridad que impiden instalar librerías con `pip`, o computadoras del aula que no tienen cargado Python). Un archivo unificado `.html` con JavaScript embebido corre de manera nativa en cualquier sistema operativo y navegador sin necesidad de ninguna instalación, eliminando cualquier riesgo técnico durante la defensa.
+2.  **Eficiencia y Cero Latencia de Red:**
+    *   Para una simulación en cuadrícula de $8 \times 8$ con hasta 15 clientes, el costo computacional de calcular la curva de Hilbert y ordenar los puntos es insignificante (toma menos de 1 milisegundo). Hacer una petición HTTP a un servidor externo o local en Python agregaría una latencia de red innecesaria. Ejecutar los cálculos directamente en el motor JavaScript del navegador (como Google V8) proporciona una experiencia de usuario fluida e instantánea.
+3.  **Transparencia de Código e Inspección Directa (Auditoría Académica):**
+    *   Al estar todo integrado en el frontend, el profesor puede abrir la herramienta de desarrollo del navegador (presionando `F12` o clic derecho -> "Inspeccionar") y visualizar en vivo las funciones exactas de la curva de Hilbert mientras corre la simulación. Esto demuestra total transparencia en el desarrollo científico del algoritmo, permitiendo verificar que la lógica matemática se ejecuta legítimamente en tiempo real.

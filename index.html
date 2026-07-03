@@ -369,31 +369,6 @@
         .exposicion-helper strong {
             color: var(--text-primary);
         }
-
-        /* Spinner */
-        .spinner {
-            border: 3px solid rgba(255,255,255,0.1);
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            border-left-color: #fff;
-            animation: spin 0.8s linear infinite;
-            display: none;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 900px) {
-            main {
-                grid-template-columns: 1fr;
-            }
-            .graphs-wrapper {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>
@@ -428,7 +403,6 @@
             </div>
 
             <button class="btn-generate" id="btn-run">
-                <span class="spinner" id="btn-spinner"></span>
                 <span id="btn-text">Generar Rutas</span>
             </button>
 
@@ -488,46 +462,46 @@
     </main>
 
     <script>
-        // Configuración y Variables de Estado
-        const slider = document.getElementById('client-slider');
-        const sliderVal = document.getElementById('slider-val');
-        const btnRun = document.getElementById('btn-run');
-        const btnSpinner = document.getElementById('btn-spinner');
-        const btnText = document.getElementById('btn-text');
-        const showCurveCheck = document.getElementById('show-curve-check');
+        // --- 1. LÓGICA MATEMÁTICA Y ALGORÍTMICA (MIGRADA DE PYTHON) ---
 
-        const canvasH = document.getElementById('canvas-hilbert');
-        const canvasT = document.getElementById('canvas-traditional');
-        const ctxH = canvasH.getContext('2d');
-        const ctxT = canvasT.getContext('2d');
+        /**
+         * Convierte coordenadas 2D (x, y) a un índice 1D de la curva de Hilbert.
+         * n: Orden de la curva (para 8x8 la cuadrícula es de orden 3, 2^3 = 8).
+         */
+        function xy2hilbert(n, x, y) {
+            let d = 0;
+            let s = 1 << (n - 1);
+            
+            // Hacer copias locales para poder mutarlas durante el bucle de rotación
+            let curX = x;
+            let curY = y;
 
-        let lastData = null; // Almacena la última respuesta de la API
-
-        // Sincronizar valor de slider en pantalla
-        slider.addEventListener('input', () => {
-            sliderVal.textContent = slider.value;
-        });
-
-        // Eventos de control
-        btnRun.addEventListener('click', generateSimulation);
-        showCurveCheck.addEventListener('change', () => {
-            if (lastData) drawSimulation(lastData);
-        });
-
-        // Obtener ruta estática de la curva de Hilbert de orden 3
-        // Generada dinámicamente para servir como fondo de guía
-        function getHilbertCurvePath() {
-            // Un arreglo de 64 puntos en cuadrícula 8x8 que forma la curva de Hilbert
-            // Mapeado usando el mismo algoritmo xy2hilbert
-            const path = [];
-            for (let d = 0; d < 64; d++) {
-                // Cálculo inverso del índice 1D d a 2D (x,y)
-                path.push(d2xy(3, d));
+            while (s > 0) {
+                let rx = (curX & s) > 0 ? 1 : 0;
+                let ry = (curY & s) > 0 ? 1 : 0;
+                
+                d += s * s * ((3 * rx) ^ ry);
+                
+                // Rotación e inversión según el cuadrante
+                if (ry === 0) {
+                    if (rx === 1) {
+                        curX = s - 1 - curX;
+                        curY = s - 1 - curY;
+                    }
+                    // Intercambiar X e Y (rotación)
+                    let temp = curX;
+                    curX = curY;
+                    curY = temp;
+                }
+                s >>= 1;
             }
-            return path;
+            return d;
         }
 
-        // Traducción bit a bit de índice a coordenadas (inverso de xy2hilbert) para renderizar el fondo
+        /**
+         * Convierte de forma inversa un índice 1D (d) a coordenadas 2D (x, y)
+         * para poder pintar la curva de Hilbert de guía en el fondo.
+         */
         function d2xy(n, d) {
             let rx, ry, s, t = d;
             let x = 0, y = 0;
@@ -535,7 +509,6 @@
                 rx = 1 & (t / 2);
                 ry = 1 & (t ^ rx);
                 
-                // Rotación
                 if (ry === 0) {
                     if (rx === 1) {
                         x = s - 1 - x;
@@ -545,7 +518,6 @@
                     x = y;
                     y = temp;
                 }
-                
                 x += s * rx;
                 y += s * ry;
                 t = Math.floor(t / 4);
@@ -553,57 +525,137 @@
             return { x, y };
         }
 
-        // Llamar a la API del backend
-        async function generateSimulation() {
-            setLoading(true);
-            const n = slider.value;
-            try {
-                const response = await fetch(`/api/generate_routes?n=${n}`);
-                if (!response.ok) throw new Error('Error en el servidor');
-                const data = await response.json();
-                lastData = data;
-                
-                // Actualizar Métricas en el Dashboard
-                document.getElementById('dist-hilbert').textContent = `${data.hilbert_distance} u`;
-                document.getElementById('dist-traditional').textContent = `${data.traditional_distance} u`;
-                
-                const saving = data.efficiency_gain_pct;
-                const savingEl = document.getElementById('dist-saving');
-                if (saving > 0) {
-                    savingEl.innerHTML = `▲ ${saving}% <span style="font-size:0.8rem; font-weight:normal; margin-left:2px; color:var(--text-secondary)">menor</span>`;
-                    savingEl.style.color = 'var(--success-color)';
-                } else if (saving < 0) {
-                    savingEl.innerHTML = `▼ ${Math.abs(saving)}% <span style="font-size:0.8rem; font-weight:normal; margin-left:2px; color:var(--text-secondary)">mayor</span>`;
-                    savingEl.style.color = '#ef4444';
-                } else {
-                    savingEl.textContent = 'Igual';
-                    savingEl.style.color = 'var(--text-primary)';
+        /**
+         * Calcula la distancia Manhattan total acumulada en una ruta cerrada.
+         */
+        function calculateManhattanDistance(route) {
+            let distance = 0;
+            for (let i = 0; i < route.length - 1; i++) {
+                let p1 = route[i];
+                let p2 = route[i + 1];
+                distance += Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y);
+            }
+            return distance;
+        }
+
+        /**
+         * Genera N coordenadas aleatorias únicas en una cuadrícula 8x8 (excluyendo el depósito en 0,0).
+         */
+        function generateRandomClients(nClients) {
+            let possibleCoords = [];
+            for (let x = 0; x < 8; x++) {
+                for (let y = 0; y < 8; y++) {
+                    if (x === 0 && y === 0) continue; // Excluir depósito
+                    possibleCoords.push({ x, y });
                 }
-
-                // Renderizar los gráficos Canvas
-                drawSimulation(data);
-            } catch (err) {
-                console.error(err);
-                alert('No se pudo comunicar con el servidor Flask.');
-            } finally {
-                setLoading(false);
             }
+
+            // Mezclado de Fisher-Yates para asegurar aletoriedad perfecta y unicidad
+            for (let i = possibleCoords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [possibleCoords[i], possibleCoords[j]] = [possibleCoords[j], possibleCoords[i]];
+            }
+
+            return possibleCoords.slice(0, nClients);
         }
 
-        function setLoading(isLoading) {
-            if (isLoading) {
-                btnSpinner.style.display = 'block';
-                btnText.textContent = 'Calculando...';
-                btnRun.disabled = true;
+        // --- 2. LÓGICA DE INTERFAZ DE USUARIO Y RENDERIZADO EN CANVAS ---
+
+        const slider = document.getElementById('client-slider');
+        const sliderVal = document.getElementById('slider-val');
+        const btnRun = document.getElementById('btn-run');
+        const showCurveCheck = document.getElementById('show-curve-check');
+
+        const canvasH = document.getElementById('canvas-hilbert');
+        const canvasT = document.getElementById('canvas-traditional');
+        const ctxH = canvasH.getContext('2d');
+        const ctxT = canvasT.getContext('2d');
+
+        let currentClients = [];
+
+        // Sincronizar slider
+        slider.addEventListener('input', () => {
+            sliderVal.textContent = slider.value;
+        });
+
+        // Botón generar simulación
+        btnRun.addEventListener('click', runSimulation);
+        showCurveCheck.addEventListener('change', drawSimulation);
+
+        // Obtener ruta completa de la curva de Hilbert de orden 3
+        function getHilbertCurvePath() {
+            const path = [];
+            for (let d = 0; d < 64; d++) {
+                path.push(d2xy(3, d));
+            }
+            return path;
+        }
+
+        /**
+         * Ejecuta la simulación de ruteo y actualiza los cálculos.
+         */
+        function runSimulation() {
+            const nClients = parseInt(slider.value);
+            
+            // Generar clientes aleatorios
+            currentClients = generateRandomClients(nClients);
+            
+            // Ejecutar y pintar
+            drawSimulation();
+        }
+
+        /**
+         * Calcula y renderiza todo en los lienzos Canvas.
+         */
+        function drawSimulation() {
+            if (currentClients.length === 0) return;
+
+            const depot = { x: 0, y: 0 };
+
+            // 1. Calcular Ruta Hilbert
+            // Mapeamos el índice Hilbert de orden 3 a cada cliente
+            let clientsWithHilbert = currentClients.map(c => {
+                return {
+                    x: c.x,
+                    y: c.y,
+                    hilbertIdx: xy2hilbert(3, c.x, c.y)
+                };
+            });
+            // Ordenar por el índice de Hilbert
+            clientsWithHilbert.sort((a, b) => a.hilbertIdx - b.hilbertIdx);
+            const hilbertRoute = [depot, ...clientsWithHilbert, depot];
+
+            // 2. Calcular Ruta Tradicional (Orden X primario, Y secundario)
+            let clientsTraditional = [...currentClients];
+            clientsTraditional.sort((a, b) => {
+                if (a.x !== b.x) return a.x - b.x;
+                return a.y - b.y;
+            });
+            const traditionalRoute = [depot, ...clientsTraditional, depot];
+
+            // 3. Calcular Distancias Manhattan
+            const hilbertDist = calculateManhattanDistance(hilbertRoute);
+            const traditionalDist = calculateManhattanDistance(traditionalRoute);
+
+            // 4. Actualizar métricas del Dashboard
+            document.getElementById('dist-hilbert').textContent = `${hilbertDist} u`;
+            document.getElementById('dist-traditional').textContent = `${traditionalDist} u`;
+            
+            const savingEl = document.getElementById('dist-saving');
+            const efficiencyGain = traditionalDist > 0 ? ((traditionalDist - hilbertDist) / traditionalDist) * 100 : 0;
+            
+            if (efficiencyGain > 0) {
+                savingEl.innerHTML = `▲ ${efficiencyGain.toFixed(1)}% <span style="font-size:0.8rem; font-weight:normal; margin-left:2px; color:var(--text-secondary)">menor</span>`;
+                savingEl.style.color = 'var(--success-color)';
+            } else if (efficiencyGain < 0) {
+                savingEl.innerHTML = `▼ ${Math.abs(efficiencyGain).toFixed(1)}% <span style="font-size:0.8rem; font-weight:normal; margin-left:2px; color:var(--text-secondary)">mayor</span>`;
+                savingEl.style.color = '#ef4444';
             } else {
-                btnSpinner.style.display = 'none';
-                btnText.textContent = 'Generar Rutas';
-                btnRun.disabled = false;
+                savingEl.textContent = 'Igual';
+                savingEl.style.color = 'var(--text-primary)';
             }
-        }
 
-        // Trazado principal
-        function drawSimulation(data) {
+            // --- RENDERIZADO CANVAS ---
             const canvasSize = 360;
             const gridCells = 8;
             const cellSize = canvasSize / gridCells;
@@ -612,7 +664,7 @@
             ctxH.clearRect(0, 0, canvasSize, canvasSize);
             ctxT.clearRect(0, 0, canvasSize, canvasSize);
 
-            // Dibujar fondos y cuadrículas
+            // Dibujar cuadrículas de fondo
             drawGrid(ctxH, canvasSize, cellSize, gridCells);
             drawGrid(ctxT, canvasSize, cellSize, gridCells);
 
@@ -621,41 +673,39 @@
                 drawHilbertBackground(ctxH, cellSize);
             }
 
-            // Dibujar las rutas de entrega
-            drawRoutePath(ctxH, data.hilbert_route, cellSize, 'var(--hilbert-color)');
-            drawRoutePath(ctxT, data.traditional_route, cellSize, 'var(--trad-color)');
+            // Dibujar los trazados de las rutas
+            drawRoutePath(ctxH, hilbertRoute, cellSize, 'var(--hilbert-color)');
+            drawRoutePath(ctxT, traditionalRoute, cellSize, 'var(--trad-color)');
 
-            // Dibujar el Depósito (0,0) destacado
+            // Dibujar depósito en ambos lienzos
             drawDepot(ctxH, cellSize);
             drawDepot(ctxT, cellSize);
 
-            // Dibujar los Clientes
-            // Los dibujamos con su respectivo orden de visita
-            drawClients(ctxH, data.hilbert_route, cellSize, 'var(--hilbert-color)');
-            drawClients(ctxT, data.traditional_route, cellSize, 'var(--trad-color)');
+            // Dibujar clientes en ambos lienzos (mostrando su respectivo orden de visita)
+            drawClients(ctxH, hilbertRoute, cellSize, 'var(--hilbert-color)');
+            drawClients(ctxT, traditionalRoute, cellSize, 'var(--trad-color)');
         }
 
-        // Dibujar Cuadrícula de Referencia
+        // Dibuja la cuadrícula 8x8 con etiquetas numéricas de fondo
         function drawGrid(ctx, size, cellSize, cells) {
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.lineWidth = 1;
             
-            // Líneas de la cuadrícula
             for (let i = 0; i <= cells; i++) {
-                // Verticales
+                // Líneas verticales
                 ctx.beginPath();
                 ctx.moveTo(i * cellSize, 0);
                 ctx.lineTo(i * cellSize, size);
                 ctx.stroke();
 
-                // Horizontales
+                // Líneas horizontales
                 ctx.beginPath();
                 ctx.moveTo(0, i * cellSize);
                 ctx.lineTo(size, i * cellSize);
                 ctx.stroke();
             }
 
-            // Ejes y Etiquetas en el fondo
+            // Números de los ejes
             ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
             ctx.font = '9px Inter';
             for (let i = 0; i < cells; i++) {
@@ -664,7 +714,7 @@
             }
         }
 
-        // Dibujar la curva de Hilbert de fondo
+        // Trazar la curva de Hilbert punteada en el fondo del gráfico Hilbert
         function drawHilbertBackground(ctx, cellSize) {
             const path = getHilbertCurvePath();
             ctx.strokeStyle = 'rgba(168, 85, 247, 0.09)';
@@ -681,10 +731,10 @@
                 else ctx.lineTo(cx, cy);
             });
             ctx.stroke();
-            ctx.setLineDash([]); // Reset
+            ctx.setLineDash([]); // Restablecer
         }
 
-        // Dibujar Trazado de Rutas (Líneas Direccionales)
+        // Trazado continuo de las rutas logísticas (líneas de colores con resplandor)
         function drawRoutePath(ctx, route, cellSize, color) {
             ctx.strokeStyle = color;
             ctx.lineWidth = 3;
@@ -701,9 +751,9 @@
                 else ctx.lineTo(cx, cy);
             });
             ctx.stroke();
-            ctx.shadowBlur = 0; // Reset
-            
-            // Dibujar flechas de sentido en el centro de los segmentos
+            ctx.shadowBlur = 0; // Restablecer
+
+            // Dibujar cabezas de flecha para indicar el sentido de las entregas
             ctx.fillStyle = color;
             for (let i = 0; i < route.length - 1; i++) {
                 const p1 = route[i];
@@ -718,9 +768,9 @@
             }
         }
 
+        // Dibuja una flecha orientada en el punto medio de cada tramo de la ruta
         function drawArrowhead(ctx, fromx, fromy, tox, toy, radius) {
             const angle = Math.atan2(toy - fromy, tox - fromx);
-            // Punto medio del segmento
             const midX = (fromx + tox) / 2;
             const midY = (fromy + toy) / 2;
             
@@ -732,18 +782,18 @@
             ctx.fill();
         }
 
-        // Dibujar el Depósito en (0, 0)
+        // Dibujar el Depósito Central destacado
         function drawDepot(ctx, cellSize) {
-            const cx = 0 * cellSize + cellSize / 2;
-            const cy = 0 * cellSize + cellSize / 2;
+            const cx = cellSize / 2;
+            const cy = cellSize / 2;
 
-            // Halo del Depósito
+            // Halo verde resplandeciente
             ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
             ctx.beginPath();
             ctx.arc(cx, cy, 18, 0, Math.PI * 2);
             ctx.fill();
 
-            // Depósito
+            // Círculo del depósito
             ctx.fillStyle = 'var(--depot-color)';
             ctx.beginPath();
             ctx.arc(cx, cy, 9, 0, Math.PI * 2);
@@ -753,7 +803,7 @@
             ctx.lineWidth = 1.5;
             ctx.stroke();
 
-            // Texto "DEP"
+            // Etiqueta DEP
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 8px Outfit';
             ctx.textAlign = 'center';
@@ -761,27 +811,27 @@
             ctx.fillText('DEP', cx, cy);
         }
 
-        // Dibujar Clientes con su número de orden
+        // Dibujar clientes como círculos numerados según el orden en que son visitados
         function drawClients(ctx, route, cellSize, color) {
-            // Excluimos el primer y último elemento de la ruta (que es el depósito)
+            // Saltamos el primer y último nodo de la ruta ya que corresponden al depósito
             for (let i = 1; i < route.length - 1; i++) {
                 const pt = route[i];
                 const cx = pt.x * cellSize + cellSize / 2;
                 const cy = pt.y * cellSize + cellSize / 2;
 
-                // Círculo base blanco
+                // Círculo blanco de fondo
                 ctx.fillStyle = '#ffffff';
                 ctx.beginPath();
                 ctx.arc(cx, cy, 11, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Círculo interior de color de la ruta
+                // Círculo de color
                 ctx.fillStyle = color;
                 ctx.beginPath();
                 ctx.arc(cx, cy, 9, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Orden de Visita
+                // Número ordinal de visita
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 10px Outfit';
                 ctx.textAlign = 'center';
@@ -790,9 +840,9 @@
             }
         }
 
-        // Simulación inicial al cargar la página
+        // Ejecutar simulación al cargar la página por primera vez
         window.addEventListener('DOMContentLoaded', () => {
-            generateSimulation();
+            runSimulation();
         });
     </script>
 </body>
