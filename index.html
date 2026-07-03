@@ -17,14 +17,14 @@
             --text-primary: #f3f4f6;
             --text-secondary: #9ca3af;
             
-            --hilbert-color: #a855f7;
-            --hilbert-glow: rgba(168, 85, 247, 0.4);
-            --trad-color: #06b6d4;
-            --trad-glow: rgba(6, 182, 212, 0.4);
+            --hilbert-color: #c084fc; /* Púrpura claro */
+            --hilbert-glow: rgba(192, 132, 252, 0.4);
+            --trad-color: #22d3ee; /* Cian claro */
+            --trad-glow: rgba(34, 211, 238, 0.4);
             
-            --success-color: #10b981;
-            --success-glow: rgba(16, 185, 129, 0.25);
-            --depot-color: #10b981;
+            --success-color: #34d399; /* Esmeralda claro */
+            --success-glow: rgba(52, 211, 153, 0.25);
+            --depot-color: #34d399;
             
             --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
             --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -62,7 +62,7 @@
             font-weight: 800;
             font-size: 2.5rem;
             letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #ffffff 30%, #a855f7 100%);
+            background: linear-gradient(135deg, #ffffff 30%, #c084fc 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
@@ -98,7 +98,7 @@
         .control-panel {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.25rem;
             height: fit-content;
         }
 
@@ -106,7 +106,7 @@
             font-family: 'Outfit', sans-serif;
             font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 0.75rem;
             display: flex;
@@ -121,63 +121,127 @@
         }
 
         label {
-            font-size: 0.85rem;
-            font-weight: 500;
+            font-size: 0.75rem;
+            font-weight: 600;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
-        .slider-container {
+        /* Selector de herramientas de clic */
+        .mode-selector {
             display: flex;
-            align-items: center;
-            gap: 1rem;
+            gap: 0.25rem;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 0.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 0.25rem;
         }
 
-        input[type="range"] {
+        .btn-mode {
             flex: 1;
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            outline: none;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.5rem 0.25rem;
+            font-size: 0.8rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: var(--transition-smooth);
+            text-align: center;
         }
 
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #a855f7;
+        .btn-mode:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .btn-mode.active {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .btn-mode.active.mode-client {
+            border-bottom: 2px solid var(--hilbert-color);
+        }
+        .btn-mode.active.mode-start {
+            border-bottom: 2px solid var(--success-color);
+        }
+        .btn-mode.active.mode-end {
+            border-bottom: 2px solid #ef4444;
+        }
+
+        /* Layout con botón y input al lado */
+        .randomizer-row {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .btn-randomize {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.65rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
             cursor: pointer;
             transition: var(--transition-smooth);
-            box-shadow: 0 0 8px #a855f7;
         }
 
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
+        .btn-randomize:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
-        .slider-value {
+        .count-select {
+            width: 60px;
+            background: #0f172a;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem;
+            text-align: center;
             font-family: 'Outfit', sans-serif;
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--hilbert-color);
-            min-width: 24px;
-            text-align: right;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
         }
 
-        .btn-generate {
+        .btn-clear {
+            background: transparent;
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+            padding: 0.65rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-clear:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-calculate {
             background: var(--accent-gradient);
             color: #ffffff;
             border: none;
             border-radius: 8px;
-            padding: 0.85rem;
+            padding: 0.9rem;
             font-family: 'Outfit', sans-serif;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: var(--transition-smooth);
             display: flex;
@@ -185,15 +249,34 @@
             align-items: center;
             gap: 0.5rem;
             box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+            margin-top: 0.5rem;
         }
 
-        .btn-generate:hover {
+        .btn-calculate:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
         }
 
-        .btn-generate:active {
-            transform: translateY(0);
+        .btn-calculate:disabled {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.25);
+            border: 1px solid var(--border-color);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .client-badge {
+            align-self: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--hilbert-color);
+            background: rgba(192, 132, 252, 0.08);
+            border: 1px solid rgba(192, 132, 252, 0.15);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            text-align: center;
+            width: 100%;
         }
 
         .checkbox-container {
@@ -203,6 +286,7 @@
             cursor: pointer;
             font-size: 0.9rem;
             color: var(--text-primary);
+            margin-top: 0.25rem;
         }
 
         .checkbox-container input {
@@ -236,6 +320,27 @@
             font-weight: bold;
         }
 
+        /* Instrucciones Dinámicas */
+        .instruction-box {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 12px;
+            padding: 0.85rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: var(--text-primary);
+        }
+
+        .instruction-box.ready {
+            background: rgba(52, 211, 153, 0.05);
+            border-color: rgba(52, 211, 153, 0.15);
+        }
+
+        .instruction-box.calculated {
+            background: rgba(192, 132, 252, 0.05);
+            border-color: rgba(192, 132, 252, 0.15);
+        }
+
         /* Visualization Area */
         .simulation-container {
             display: flex;
@@ -251,7 +356,9 @@
         }
 
         .metric-card {
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 1rem;
@@ -261,6 +368,8 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: var(--transition-smooth);
         }
 
         .metric-card::before {
@@ -277,7 +386,7 @@
         .metric-card.saving::before { background: var(--success-color); }
 
         .metric-label {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 600;
             color: var(--text-secondary);
             text-transform: uppercase;
@@ -289,6 +398,7 @@
             font-family: 'Outfit', sans-serif;
             font-size: 1.5rem;
             font-weight: 700;
+            transition: var(--transition-smooth);
         }
 
         .hilbert .metric-value { color: var(--hilbert-color); }
@@ -301,6 +411,13 @@
             justify-content: center;
             gap: 0.25rem;
             font-weight: 700;
+        }
+
+        .waiting-text {
+            color: var(--text-secondary) !important;
+            font-size: 1.25rem;
+            font-style: italic;
+            font-weight: 400;
         }
 
         /* Graphs Side-by-Side */
@@ -347,18 +464,25 @@
             position: relative;
             background: #0f172a;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
             box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
             padding: 10px;
+            transition: var(--transition-smooth);
+        }
+
+        .canvas-container:hover {
+            border-color: rgba(255, 255, 255, 0.1);
         }
 
         canvas {
             display: block;
             cursor: crosshair;
+            width: 340px;
+            height: 340px;
         }
 
-        /* Brief description for university presentation */
+        /* Ayuda para defensa académica */
         .exposicion-helper {
             font-size: 0.85rem;
             line-height: 1.5;
@@ -368,6 +492,15 @@
 
         .exposicion-helper strong {
             color: var(--text-primary);
+        }
+
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+            .graphs-wrapper {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -383,17 +516,55 @@
         <section class="control-panel glass-panel">
             <h2 class="panel-title">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>
-                Parámetros
+                Controles
             </h2>
-            
+
+            <!-- Instrucciones dinámicas al usuario -->
+            <div class="instruction-box" id="instruction-text">
+                <strong>Paso 1:</strong> Selecciona el Modo de Clic en "Puntos de Control" para ubicar el Inicio/Fin, o añade clientes directamente.
+            </div>
+
+            <!-- Panel de Configuración de Puntos de Control (Inicio/Fin) -->
             <div class="control-group">
-                <label for="client-slider">Número de Clientes</label>
-                <div class="slider-container">
-                    <input type="range" id="client-slider" min="3" max="15" value="8">
-                    <span class="slider-value" id="slider-val">8</span>
+                <label>Puntos de Control (Inicio/Fin)</label>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="round-trip-check" checked>
+                    <span class="custom-checkbox"></span>
+                    Viaje Redondo (Inicio = Fin)
+                </label>
+                
+                <!-- Selector de herramienta de colocación de clics -->
+                <div class="mode-selector">
+                    <button class="btn-mode active mode-client" id="btn-mode-client" data-mode="client">🔵 Clientes</button>
+                    <button class="btn-mode mode-start" id="btn-mode-start" data-mode="start">🟢 Inicio</button>
+                    <button class="btn-mode mode-end" id="btn-mode-end" data-mode="end" style="display:none;">🔴 Fin</button>
                 </div>
             </div>
 
+            <!-- Contador de Clientes colocados -->
+            <div class="client-badge" id="client-counter">
+                0 / 15 Clientes Colocados
+            </div>
+            
+            <!-- Posicionar aleatoriamente -->
+            <div class="control-group">
+                <label>Posicionar Aleatorios</label>
+                <div class="randomizer-row">
+                    <button class="btn-randomize" id="btn-random">Generar Puntos</button>
+                    <select class="count-select" id="random-count">
+                        <option value="5">5</option>
+                        <option value="8" selected>8</option>
+                        <option value="10">10</option>
+                        <option value="12">12</option>
+                        <option value="15">15</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Acciones secundarias -->
+            <button class="btn-clear" id="btn-clear-grid">Limpiar Cuadrícula</button>
+
+            <!-- Checkbox Hilbert -->
             <div class="control-group">
                 <label class="checkbox-container">
                     <input type="checkbox" id="show-curve-check" checked>
@@ -402,13 +573,15 @@
                 </label>
             </div>
 
-            <button class="btn-generate" id="btn-run">
-                <span id="btn-text">Generar Rutas</span>
+            <!-- Botón de Acción Principal para Calcular -->
+            <button class="btn-calculate" id="btn-calc" disabled>
+                Calcular Rutas
             </button>
 
             <div class="exposicion-helper">
-                <strong>Consejo Académico:</strong><br>
-                Prueba con <strong>N=10 o más clientes</strong>. Notarás que el ordenamiento tradicional tiende a cruzar repetidamente la cuadrícula de izquierda a derecha (ineficiencia de barrido), mientras que la Curva de Hilbert agrupa las paradas en vecindades locales disminuyendo los trayectos redundantes.
+                <strong>Defensa Académica:</strong><br>
+                1. Desactiva "Viaje Redondo", coloca el **Inicio** en (0,7) y el **Fin** en (7,0) para evaluar el ruteo abierto.<br>
+                2. Mira el porcentaje de eficiencia ganada en rutas complejas de punto a punto.
             </div>
         </section>
 
@@ -441,7 +614,7 @@
                         </span>
                     </div>
                     <div class="canvas-container">
-                        <canvas id="canvas-hilbert" width="360" height="360"></canvas>
+                        <canvas id="canvas-hilbert"></canvas>
                     </div>
                 </div>
 
@@ -454,7 +627,7 @@
                         </span>
                     </div>
                     <div class="canvas-container">
-                        <canvas id="canvas-traditional" width="360" height="360"></canvas>
+                        <canvas id="canvas-traditional"></canvas>
                     </div>
                 </div>
             </div>
@@ -462,17 +635,11 @@
     </main>
 
     <script>
-        // --- 1. LÓGICA MATEMÁTICA Y ALGORÍTMICA (MIGRADA DE PYTHON) ---
+        // --- 1. LÓGICA ALGORÍTMICA Y MATEMÁTICA ---
 
-        /**
-         * Convierte coordenadas 2D (x, y) a un índice 1D de la curva de Hilbert.
-         * n: Orden de la curva (para 8x8 la cuadrícula es de orden 3, 2^3 = 8).
-         */
         function xy2hilbert(n, x, y) {
             let d = 0;
             let s = 1 << (n - 1);
-            
-            // Hacer copias locales para poder mutarlas durante el bucle de rotación
             let curX = x;
             let curY = y;
 
@@ -482,13 +649,11 @@
                 
                 d += s * s * ((3 * rx) ^ ry);
                 
-                // Rotación e inversión según el cuadrante
                 if (ry === 0) {
                     if (rx === 1) {
                         curX = s - 1 - curX;
                         curY = s - 1 - curY;
                     }
-                    // Intercambiar X e Y (rotación)
                     let temp = curX;
                     curX = curY;
                     curY = temp;
@@ -498,10 +663,6 @@
             return d;
         }
 
-        /**
-         * Convierte de forma inversa un índice 1D (d) a coordenadas 2D (x, y)
-         * para poder pintar la curva de Hilbert de guía en el fondo.
-         */
         function d2xy(n, d) {
             let rx, ry, s, t = d;
             let x = 0, y = 0;
@@ -525,9 +686,6 @@
             return { x, y };
         }
 
-        /**
-         * Calcula la distancia Manhattan total acumulada en una ruta cerrada.
-         */
         function calculateManhattanDistance(route) {
             let distance = 0;
             for (let i = 0; i < route.length - 1; i++) {
@@ -538,19 +696,17 @@
             return distance;
         }
 
-        /**
-         * Genera N coordenadas aleatorias únicas en una cuadrícula 8x8 (excluyendo el depósito en 0,0).
-         */
+        // Generar coordenadas aleatorias que no choquen con Inicio o Fin
         function generateRandomClients(nClients) {
             let possibleCoords = [];
             for (let x = 0; x < 8; x++) {
                 for (let y = 0; y < 8; y++) {
-                    if (x === 0 && y === 0) continue; // Excluir depósito
+                    if (x === startPoint.x && y === startPoint.y) continue;
+                    if (x === endPoint.x && y === endPoint.y) continue;
                     possibleCoords.push({ x, y });
                 }
             }
 
-            // Mezclado de Fisher-Yates para asegurar aletoriedad perfecta y unicidad
             for (let i = possibleCoords.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [possibleCoords[i], possibleCoords[j]] = [possibleCoords[j], possibleCoords[i]];
@@ -559,30 +715,47 @@
             return possibleCoords.slice(0, nClients);
         }
 
-        // --- 2. LÓGICA DE INTERFAZ DE USUARIO Y RENDERIZADO EN CANVAS ---
+        // --- 2. LÓGICA DE CONTROL DE LA SIMULACIÓN ---
 
-        const slider = document.getElementById('client-slider');
-        const sliderVal = document.getElementById('slider-val');
-        const btnRun = document.getElementById('btn-run');
+        const btnRandom = document.getElementById('btn-random');
+        const randomCountSelect = document.getElementById('random-count');
+        const btnClearGrid = document.getElementById('btn-clear-grid');
+        const btnCalc = document.getElementById('btn-calc');
         const showCurveCheck = document.getElementById('show-curve-check');
+        const clientCounter = document.getElementById('client-counter');
+        const instructionText = document.getElementById('instruction-text');
+        
+        const roundTripCheck = document.getElementById('round-trip-check');
+        const btnModeClient = document.getElementById('btn-mode-client');
+        const btnModeStart = document.getElementById('btn-mode-start');
+        const btnModeEnd = document.getElementById('btn-mode-end');
 
         const canvasH = document.getElementById('canvas-hilbert');
         const canvasT = document.getElementById('canvas-traditional');
         const ctxH = canvasH.getContext('2d');
         const ctxT = canvasT.getContext('2d');
 
-        let currentClients = [];
+        const canvasSize = 340;
+        const gridCells = 8;
+        const cellSize = canvasSize / gridCells;
 
-        // Sincronizar slider
-        slider.addEventListener('input', () => {
-            sliderVal.textContent = slider.value;
-        });
+        // Estado del simulador
+        let currentClients = []; 
+        let routesCalculated = false;
+        
+        let startPoint = { x: 0, y: 0 };
+        let endPoint = { x: 0, y: 0 };
+        let roundTrip = true;
+        let clickMode = 'client'; // 'client', 'start', 'end'
 
-        // Botón generar simulación
-        btnRun.addEventListener('click', runSimulation);
-        showCurveCheck.addEventListener('change', drawSimulation);
+        function initCanvasDPI(canvas, ctx) {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = canvasSize * dpr;
+            canvas.height = canvasSize * dpr;
+            ctx.scale(dpr, dpr);
+            ctx.imageSmoothingEnabled = true;
+        }
 
-        // Obtener ruta completa de la curva de Hilbert de orden 3
         function getHilbertCurvePath() {
             const path = [];
             for (let d = 0; d < 64; d++) {
@@ -591,137 +764,291 @@
             return path;
         }
 
-        /**
-         * Ejecuta la simulación de ruteo y actualiza los cálculos.
-         */
-        function runSimulation() {
-            const nClients = parseInt(slider.value);
+        // Cambiar la herramienta activa de clic
+        function setClickMode(mode) {
+            clickMode = mode;
             
-            // Generar clientes aleatorios
-            currentClients = generateRandomClients(nClients);
-            
-            // Ejecutar y pintar
-            drawSimulation();
+            // Remover clase activa de todos
+            btnModeClient.classList.remove('active');
+            btnModeStart.classList.remove('active');
+            btnModeEnd.classList.remove('active');
+
+            if (mode === 'client') btnModeClient.classList.add('active');
+            if (mode === 'start') btnModeStart.classList.add('active');
+            if (mode === 'end') btnModeEnd.classList.add('active');
+
+            updateUIControls();
         }
 
-        /**
-         * Calcula y renderiza todo en los lienzos Canvas.
-         */
-        function drawSimulation() {
-            if (currentClients.length === 0) return;
+        // Escuchar clics en los botones de modo
+        btnModeClient.addEventListener('click', () => setClickMode('client'));
+        btnModeStart.addEventListener('click', () => setClickMode('start'));
+        btnModeEnd.addEventListener('click', () => setClickMode('end'));
 
-            const depot = { x: 0, y: 0 };
-
-            // 1. Calcular Ruta Hilbert
-            // Mapeamos el índice Hilbert de orden 3 a cada cliente
-            let clientsWithHilbert = currentClients.map(c => {
-                return {
-                    x: c.x,
-                    y: c.y,
-                    hilbertIdx: xy2hilbert(3, c.x, c.y)
-                };
-            });
-            // Ordenar por el índice de Hilbert
-            clientsWithHilbert.sort((a, b) => a.hilbertIdx - b.hilbertIdx);
-            const hilbertRoute = [depot, ...clientsWithHilbert, depot];
-
-            // 2. Calcular Ruta Tradicional (Orden X primario, Y secundario)
-            let clientsTraditional = [...currentClients];
-            clientsTraditional.sort((a, b) => {
-                if (a.x !== b.x) return a.x - b.x;
-                return a.y - b.y;
-            });
-            const traditionalRoute = [depot, ...clientsTraditional, depot];
-
-            // 3. Calcular Distancias Manhattan
-            const hilbertDist = calculateManhattanDistance(hilbertRoute);
-            const traditionalDist = calculateManhattanDistance(traditionalRoute);
-
-            // 4. Actualizar métricas del Dashboard
-            document.getElementById('dist-hilbert').textContent = `${hilbertDist} u`;
-            document.getElementById('dist-traditional').textContent = `${traditionalDist} u`;
-            
-            const savingEl = document.getElementById('dist-saving');
-            const efficiencyGain = traditionalDist > 0 ? ((traditionalDist - hilbertDist) / traditionalDist) * 100 : 0;
-            
-            if (efficiencyGain > 0) {
-                savingEl.innerHTML = `▲ ${efficiencyGain.toFixed(1)}% <span style="font-size:0.8rem; font-weight:normal; margin-left:2px; color:var(--text-secondary)">menor</span>`;
-                savingEl.style.color = 'var(--success-color)';
-            } else if (efficiencyGain < 0) {
-                savingEl.innerHTML = `▼ ${Math.abs(efficiencyGain).toFixed(1)}% <span style="font-size:0.8rem; font-weight:normal; margin-left:2px; color:var(--text-secondary)">mayor</span>`;
-                savingEl.style.color = '#ef4444';
+        // Controlar checkbox de viaje redondo
+        roundTripCheck.addEventListener('change', () => {
+            roundTrip = roundTripCheck.checked;
+            if (roundTrip) {
+                // Hacer que el fin sea igual al inicio
+                endPoint = { ...startPoint };
+                btnModeEnd.style.display = 'none';
+                if (clickMode === 'end') {
+                    setClickMode('client');
+                }
             } else {
-                savingEl.textContent = 'Igual';
-                savingEl.style.color = 'var(--text-primary)';
+                btnModeEnd.style.display = 'block';
+            }
+            routesCalculated = false;
+            drawSimulation();
+            updateUIControls();
+        });
+
+        // Sincronizar UI y guías de texto
+        function updateUIControls() {
+            const count = currentClients.length;
+            clientCounter.textContent = `${count} / 15 Clientes Colocados`;
+
+            // Habilitar o deshabilitar botón Calcular
+            if (count >= 3) {
+                btnCalc.disabled = false;
+            } else {
+                btnCalc.disabled = true;
             }
 
-            // --- RENDERIZADO CANVAS ---
-            const canvasSize = 360;
-            const gridCells = 8;
-            const cellSize = canvasSize / gridCells;
+            // Cambiar textos según el modo activo
+            if (clickMode === 'start') {
+                instructionText.className = "instruction-box ready";
+                instructionText.innerHTML = "🎯 <strong>Modo Inicio:</strong> Haz clic en cualquier celda para reubicar el punto de partida (verde 🟢).";
+            } else if (clickMode === 'end') {
+                instructionText.className = "instruction-box";
+                instructionText.style.borderColor = "#ef4444";
+                instructionText.innerHTML = "🎯 <strong>Modo Fin:</strong> Haz clic en cualquier celda para reubicar el punto de destino final (rojo 🔴).";
+            } else {
+                instructionText.style.borderColor = ""; // Reset
+                if (count >= 3) {
+                    if (!routesCalculated) {
+                        instructionText.className = "instruction-box ready";
+                        instructionText.innerHTML = "<strong>¡Listo!</strong> Tienes suficientes puntos colocados. Presiona <strong>'Calcular Rutas'</strong> para ver la simulación.";
+                    } else {
+                        instructionText.className = "instruction-box calculated";
+                        instructionText.innerHTML = "<strong>Rutas Calculadas:</strong> Ruta abierta o cerrada mostrada. Haz clic en la cuadrícula para añadir/quitar clientes.";
+                    }
+                } else {
+                    instructionText.className = "instruction-box";
+                    instructionText.innerHTML = "<strong>Paso 1:</strong> Agrega al menos <strong>" + (3 - count) + " cliente(s) más</strong> haciendo clic en el mapa o presionando el botón 'Generar Puntos'.";
+                }
+            }
+        }
 
+        // Acciones del panel
+        btnRandom.addEventListener('click', () => {
+            const num = parseInt(randomCountSelect.value);
+            currentClients = generateRandomClients(num);
+            routesCalculated = false;
+            drawSimulation();
+            updateUIControls();
+        });
+
+        btnClearGrid.addEventListener('click', () => {
+            currentClients = [];
+            routesCalculated = false;
+            drawSimulation();
+            updateUIControls();
+        });
+
+        btnCalc.addEventListener('click', () => {
+            if (currentClients.length >= 3) {
+                routesCalculated = true;
+                drawSimulation();
+                updateUIControls();
+            }
+        });
+
+        // Eliminar cliente en coordenadas específicas si coincide al poner inicio/fin
+        function removeOverlapClient(x, y) {
+            const idx = currentClients.findIndex(c => c.x === x && c.y === y);
+            if (idx !== -1) {
+                currentClients.splice(idx, 1);
+            }
+        }
+
+        // Control de clics en la cuadrícula
+        function handleGridClick(e, canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+            
+            const cellX = Math.floor(clickX / (rect.width / gridCells));
+            const cellY = Math.floor(clickY / (rect.height / gridCells));
+
+            if (cellX < 0 || cellX >= 8 || cellY < 0 || cellY >= 8) return;
+
+            if (clickMode === 'start') {
+                // Reubicar Inicio
+                removeOverlapClient(cellX, cellY);
+                startPoint = { x: cellX, y: cellY };
+                if (roundTrip) {
+                    endPoint = { x: cellX, y: cellY };
+                }
+                routesCalculated = false;
+                setClickMode('client'); // Revertir al modo clientes por comodidad
+            } else if (clickMode === 'end') {
+                // Reubicar Fin
+                if (roundTrip) return;
+                removeOverlapClient(cellX, cellY);
+                endPoint = { x: cellX, y: cellY };
+                routesCalculated = false;
+                setClickMode('client'); // Revertir
+            } else {
+                // Modo Clientes estándar
+                // Prohibido sobreescribir el inicio o fin
+                if (cellX === startPoint.x && cellY === startPoint.y) return;
+                if (cellX === endPoint.x && cellY === endPoint.y) return;
+
+                const existingIndex = currentClients.findIndex(c => c.x === cellX && c.y === cellY);
+
+                if (existingIndex !== -1) {
+                    currentClients.splice(existingIndex, 1);
+                } else {
+                    if (currentClients.length >= 15) {
+                        alert("Se ha alcanzado el límite máximo de 15 clientes en el mapa.");
+                        return;
+                    }
+                    currentClients.push({ x: cellX, y: cellY });
+                }
+                routesCalculated = false;
+            }
+
+            drawSimulation();
+            updateUIControls();
+        }
+
+        canvasH.addEventListener('mousedown', (e) => handleGridClick(e, canvasH));
+        canvasT.addEventListener('mousedown', (e) => handleGridClick(e, canvasT));
+
+        // --- 3. DIBUJO EN LIENZO CANVAS ---
+
+        function drawSimulation() {
             // Limpiar lienzos
             ctxH.clearRect(0, 0, canvasSize, canvasSize);
             ctxT.clearRect(0, 0, canvasSize, canvasSize);
 
             // Dibujar cuadrículas de fondo
-            drawGrid(ctxH, canvasSize, cellSize, gridCells);
-            drawGrid(ctxT, canvasSize, cellSize, gridCells);
+            drawGrid(ctxH);
+            drawGrid(ctxT);
 
             // Dibujar la curva fractal de Hilbert de fondo si está activado
             if (showCurveCheck.checked) {
-                drawHilbertBackground(ctxH, cellSize);
+                drawHilbertBackground(ctxH);
             }
 
-            // Dibujar los trazados de las rutas
-            drawRoutePath(ctxH, hilbertRoute, cellSize, 'var(--hilbert-color)');
-            drawRoutePath(ctxT, traditionalRoute, cellSize, 'var(--trad-color)');
+            // Si las rutas han sido CALCULADAS, se ejecutan y dibujan
+            if (routesCalculated && currentClients.length >= 3) {
+                // Enfoque Hilbert: ordenar sólo clientes intermedios
+                let clientsWithHilbert = currentClients.map(c => {
+                    return {
+                        x: c.x,
+                        y: c.y,
+                        hilbertIdx: xy2hilbert(3, c.x, c.y)
+                    };
+                });
+                clientsWithHilbert.sort((a, b) => a.hilbertIdx - b.hilbertIdx);
+                const hilbertRoute = [startPoint, ...clientsWithHilbert, endPoint];
 
-            // Dibujar depósito en ambos lienzos
-            drawDepot(ctxH, cellSize);
-            drawDepot(ctxT, cellSize);
+                // Enfoque Tradicional
+                let clientsTraditional = [...currentClients];
+                clientsTraditional.sort((a, b) => {
+                    if (a.x !== b.x) return a.x - b.x;
+                    return a.y - b.y;
+                });
+                const traditionalRoute = [startPoint, ...clientsTraditional, endPoint];
 
-            // Dibujar clientes en ambos lienzos (mostrando su respectivo orden de visita)
-            drawClients(ctxH, hilbertRoute, cellSize, 'var(--hilbert-color)');
-            drawClients(ctxT, traditionalRoute, cellSize, 'var(--trad-color)');
+                // Distancias Manhattan
+                const hilbertDist = calculateManhattanDistance(hilbertRoute);
+                const traditionalDist = calculateManhattanDistance(traditionalRoute);
+
+                // Dibujar Líneas de Rutas
+                drawRoutePath(ctxH, hilbertRoute, 'var(--hilbert-color)');
+                drawRoutePath(ctxT, traditionalRoute, 'var(--trad-color)');
+
+                // Dibujar Puntos de Control de Inicio y Fin
+                drawStartEnd(ctxH);
+                drawStartEnd(ctxT);
+
+                // Dibujar Clientes Numerados por orden de visita
+                drawClients(ctxH, hilbertRoute, 'var(--hilbert-color)', true);
+                drawClients(ctxT, traditionalRoute, 'var(--trad-color)', true);
+
+                // Actualizar métricas del dashboard
+                document.getElementById('dist-hilbert').textContent = `${hilbertDist} u`;
+                document.getElementById('dist-traditional').textContent = `${traditionalDist} u`;
+                
+                const savingEl = document.getElementById('dist-saving');
+                const efficiencyGain = traditionalDist > 0 ? ((traditionalDist - hilbertDist) / traditionalDist) * 100 : 0;
+                
+                if (efficiencyGain > 0) {
+                    savingEl.innerHTML = `▲ ${efficiencyGain.toFixed(1)}% <span style="font-size:0.8rem; font-weight:normal; margin-left:2px; color:var(--text-secondary)">menor</span>`;
+                    savingEl.className = "metric-value saving-badge";
+                    savingEl.style.color = ""; // CSS success color
+                } else if (efficiencyGain < 0) {
+                    savingEl.innerHTML = `▼ ${Math.abs(efficiencyGain).toFixed(1)}% <span style="font-size:0.8rem; font-weight:normal; margin-left:2px; color:var(--text-secondary)">mayor</span>`;
+                    savingEl.className = "metric-value";
+                    savingEl.style.color = '#ef4444';
+                } else {
+                    savingEl.textContent = 'Igual';
+                    savingEl.className = "metric-value";
+                    savingEl.style.color = 'var(--text-primary)';
+                }
+            } else {
+                // Si NO se ha calculado la ruta, solo dibujamos los controles y los puntos simples sin numerar
+                drawStartEnd(ctxH);
+                drawStartEnd(ctxT);
+
+                // Dibujar puntos de clientes no numerados (simples círculos brillantes)
+                // Usamos una ruta ficticia sólo para pasar los puntos a la función de dibujo
+                drawClients(ctxH, [startPoint, ...currentClients, endPoint], 'var(--hilbert-color)', false);
+                drawClients(ctxT, [startPoint, ...currentClients, endPoint], 'var(--trad-color)', false);
+
+                // Métricas en espera
+                document.getElementById('dist-hilbert').innerHTML = `<span class="waiting-text">En espera...</span>`;
+                document.getElementById('dist-traditional').innerHTML = `<span class="waiting-text">En espera...</span>`;
+                document.getElementById('dist-saving').innerHTML = `<span class="waiting-text">--</span>`;
+            }
         }
 
-        // Dibuja la cuadrícula 8x8 con etiquetas numéricas de fondo
-        function drawGrid(ctx, size, cellSize, cells) {
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+        function drawGrid(ctx) {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
             ctx.lineWidth = 1;
             
-            for (let i = 0; i <= cells; i++) {
-                // Líneas verticales
+            for (let i = 0; i <= gridCells; i++) {
                 ctx.beginPath();
                 ctx.moveTo(i * cellSize, 0);
-                ctx.lineTo(i * cellSize, size);
+                ctx.lineTo(i * cellSize, canvasSize);
                 ctx.stroke();
 
-                // Líneas horizontales
                 ctx.beginPath();
                 ctx.moveTo(0, i * cellSize);
-                ctx.lineTo(size, i * cellSize);
+                ctx.lineTo(canvasSize, i * cellSize);
                 ctx.stroke();
             }
 
-            // Números de los ejes
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.font = '9px Inter';
-            for (let i = 0; i < cells; i++) {
-                ctx.fillText(i, i * cellSize + 5, 12);
-                ctx.fillText(i, 5, i * cellSize + cellSize - 5);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+            ctx.font = '500 10px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            for (let i = 0; i < gridCells; i++) {
+                ctx.fillText(i, i * cellSize + cellSize / 2, 10);
+                ctx.fillText(i, 10, i * cellSize + cellSize / 2);
             }
         }
 
-        // Trazar la curva de Hilbert punteada en el fondo del gráfico Hilbert
-        function drawHilbertBackground(ctx, cellSize) {
+        function drawHilbertBackground(ctx) {
             const path = getHilbertCurvePath();
-            ctx.strokeStyle = 'rgba(168, 85, 247, 0.09)';
-            ctx.lineWidth = 4;
+            ctx.strokeStyle = 'rgba(192, 132, 252, 0.15)';
+            ctx.lineWidth = 2.5;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.setLineDash([5, 5]);
+            ctx.setLineDash([4, 4]);
 
             ctx.beginPath();
             path.forEach((pt, index) => {
@@ -731,16 +1058,16 @@
                 else ctx.lineTo(cx, cy);
             });
             ctx.stroke();
-            ctx.setLineDash([]); // Restablecer
+            ctx.setLineDash([]);
         }
 
-        // Trazado continuo de las rutas logísticas (líneas de colores con resplandor)
-        function drawRoutePath(ctx, route, cellSize, color) {
+        function drawRoutePath(ctx, route, color) {
             ctx.strokeStyle = color;
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 4;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.shadowBlur = 10;
+            
+            ctx.shadowBlur = 8;
             ctx.shadowColor = color;
 
             ctx.beginPath();
@@ -751,9 +1078,8 @@
                 else ctx.lineTo(cx, cy);
             });
             ctx.stroke();
-            ctx.shadowBlur = 0; // Restablecer
+            ctx.shadowBlur = 0;
 
-            // Dibujar cabezas de flecha para indicar el sentido de las entregas
             ctx.fillStyle = color;
             for (let i = 0; i < route.length - 1; i++) {
                 const p1 = route[i];
@@ -764,11 +1090,10 @@
                 const cx2 = p2.x * cellSize + cellSize/2;
                 const cy2 = p2.y * cellSize + cellSize/2;
                 
-                drawArrowhead(ctx, cx1, cy1, cx2, cy2, 6);
+                drawArrowhead(ctx, cx1, cy1, cx2, cy2, 7);
             }
         }
 
-        // Dibuja una flecha orientada en el punto medio de cada tramo de la ruta
         function drawArrowhead(ctx, fromx, fromy, tox, toy, radius) {
             const angle = Math.atan2(toy - fromy, tox - fromx);
             const midX = (fromx + tox) / 2;
@@ -782,67 +1107,134 @@
             ctx.fill();
         }
 
-        // Dibujar el Depósito Central destacado
-        function drawDepot(ctx, cellSize) {
-            const cx = cellSize / 2;
-            const cy = cellSize / 2;
+        // Pintar los Puntos de Control de Inicio (INI) y Fin (FIN)
+        function drawStartEnd(ctx) {
+            if (startPoint.x === endPoint.x && startPoint.y === endPoint.y) {
+                // Viaje redondo (Mismo origen y destino)
+                const cx = startPoint.x * cellSize + cellSize / 2;
+                const cy = startPoint.y * cellSize + cellSize / 2;
 
-            // Halo verde resplandeciente
-            ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
-            ctx.beginPath();
-            ctx.arc(cx, cy, 18, 0, Math.PI * 2);
-            ctx.fill();
+                ctx.fillStyle = 'rgba(52, 211, 153, 0.25)';
+                ctx.beginPath();
+                ctx.arc(cx, cy, 21, 0, Math.PI * 2);
+                ctx.fill();
 
-            // Círculo del depósito
-            ctx.fillStyle = 'var(--depot-color)';
-            ctx.beginPath();
-            ctx.arc(cx, cy, 9, 0, Math.PI * 2);
-            ctx.fill();
-            
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-
-            // Etiqueta DEP
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 8px Outfit';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('DEP', cx, cy);
-        }
-
-        // Dibujar clientes como círculos numerados según el orden en que son visitados
-        function drawClients(ctx, route, cellSize, color) {
-            // Saltamos el primer y último nodo de la ruta ya que corresponden al depósito
-            for (let i = 1; i < route.length - 1; i++) {
-                const pt = route[i];
-                const cx = pt.x * cellSize + cellSize / 2;
-                const cy = pt.y * cellSize + cellSize / 2;
-
-                // Círculo blanco de fondo
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = 'var(--depot-color)';
                 ctx.beginPath();
                 ctx.arc(cx, cy, 11, 0, Math.PI * 2);
                 ctx.fill();
+                
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
 
-                // Círculo de color
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.arc(cx, cy, 9, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Número ordinal de visita
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 10px Outfit';
+                ctx.font = 'bold 9px Outfit';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(i, cx, cy);
+                ctx.fillText('INI/FIN', cx, cy);
+            } else {
+                // Origen y destino distintos
+                // 1. INICIO (Verde)
+                const sx = startPoint.x * cellSize + cellSize / 2;
+                const sy = startPoint.y * cellSize + cellSize / 2;
+
+                ctx.fillStyle = 'rgba(52, 211, 153, 0.25)';
+                ctx.beginPath();
+                ctx.arc(sx, sy, 21, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'var(--depot-color)';
+                ctx.beginPath();
+                ctx.arc(sx, sy, 11, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 9px Outfit';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('INI', sx, sy);
+
+                // 2. FIN (Rojo)
+                const ex = endPoint.x * cellSize + cellSize / 2;
+                const ey = endPoint.y * cellSize + cellSize / 2;
+
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+                ctx.beginPath();
+                ctx.arc(ex, ey, 21, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(ex, ey, 11, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 9px Outfit';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('FIN', ex, ey);
             }
         }
 
-        // Ejecutar simulación al cargar la página por primera vez
+        // Dibujar clientes (excluye inicio y fin del array dibujado para no encimarse)
+        function drawClients(ctx, route, color, isNumbered) {
+            for (let i = 1; i < route.length - 1; i++) {
+                const pt = route[i];
+                
+                // Evitar dibujar sobre inicio y fin si acaso coinciden en modo no-cálculo
+                if (pt.x === startPoint.x && pt.y === startPoint.y) continue;
+                if (pt.x === endPoint.x && pt.y === endPoint.y) continue;
+
+                const cx = pt.x * cellSize + cellSize / 2;
+                const cy = pt.y * cellSize + cellSize / 2;
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (isNumbered) {
+                    ctx.fillStyle = '#0b0f19';
+                    ctx.font = '800 12px Outfit';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(i, cx, cy);
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        // Inicializar
         window.addEventListener('DOMContentLoaded', () => {
-            runSimulation();
+            initCanvasDPI(canvasH, ctxH);
+            initCanvasDPI(canvasT, ctxT);
+            
+            // Posicionar puntos iniciales por defecto
+            startPoint = { x: 0, y: 0 };
+            endPoint = { x: 0, y: 0 };
+            
+            currentClients = generateRandomClients(8);
+            
+            drawSimulation();
+            updateUIControls();
         });
     </script>
 </body>
